@@ -11,3 +11,5 @@ services:
       - .:/usr/src/app
   mongo:
     image: mongo
+    ports:
+      - '27018:27017'
