@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { UsersMongoRepository } from './users/users.mongo.repository';
-import { UserDocument } from './users/models/user.mongo.schema';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { TokenPayload } from './interfaces/token-payload.interface';
+import { UserDto } from '@app/common';
 
 @Injectable()
 export class AuthService {
@@ -14,9 +14,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async getJwt(user: UserDocument) {
+  async getJwt(userId: string) {
     const tokenPayload: TokenPayload = {
-      userId: user._id.toHexString(),
+      userId,
     };
 
     const expires = new Date();
@@ -29,12 +29,17 @@ export class AuthService {
     return { token, expires };
   }
 
-  async verifyUser(email: string, password: string) {
+  async verifyUser(email: string, password: string): Promise<UserDto> {
     const user = await this.usersRepository.findOne({ email });
     const passwordIsValid = await bcrypt.compare(password, user.password);
     if (!passwordIsValid) {
       throw new UnauthorizedException('Credentials are not valid.');
     }
-    return user;
+
+    return {
+      _id: user._id.toHexString(),
+      email: user.email,
+      password: user.password,
+    };
   }
 }
