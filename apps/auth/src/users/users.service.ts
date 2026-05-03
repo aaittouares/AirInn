@@ -16,6 +16,6 @@ export class UsersService {
   }
 
   async getUser(getUserDto: GetUserDto) {
-    return this.usersRepository.findOne({ _id: getUserDto._id });
+    return this.usersRepository.findOne(getUserDto);
   }
 }
