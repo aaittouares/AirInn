@@ -1,10 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsMongoRepository } from './reservations.mongo.repository';
 import { PAYMENTS_SERVICE } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { map } from 'rxjs';
+import { catchError, map } from 'rxjs';
 
 @Injectable()
 export class ReservationsService {
@@ -13,7 +17,7 @@ export class ReservationsService {
     @Inject(PAYMENTS_SERVICE) private readonly paymentsService: ClientProxy,
   ) {}
 
-  async create(createReservationDto: CreateReservationDto, userId: string) {
+  create(createReservationDto: CreateReservationDto, userId: string) {
     return this.paymentsService
       .send('create_charge', createReservationDto.charge)
       .pipe(
@@ -24,6 +28,11 @@ export class ReservationsService {
             timestamp: new Date(),
             userId,
           });
+        }),
+        catchError(() => {
+          throw new InternalServerErrorException(
+            'Error during create charge rpc call',
+          );
         }),
       );
   }
