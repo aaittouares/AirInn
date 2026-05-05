@@ -1,4 +1,5 @@
 FROM node:alpine As development
+ENV CI=true
 
 WORKDIR /usr/src/app
 
@@ -7,11 +8,12 @@ COPY pnpm-lock.yaml ./
 
 RUN npm install -g pnpm
 
-RUN pnpm install
+COPY apps/reservations apps/reservations
+COPY libs libs
+COPY tsconfig.json tsconfig.json
+COPY nest-cli.json nest-cli.json
 
-COPY . .
-
-RUN pnpm run build
+RUN pnpm install -r 
 
 FROM node:alpine as production
 

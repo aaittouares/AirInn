@@ -1,14 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NOTIFICATIONS_SERVICE } from '@app/common';
-import { Stripe as StripeType } from 'node_modules/stripe/cjs/stripe.core';
 import Stripe from 'stripe';
 import { ClientProxy } from '@nestjs/microservices';
 import { PaymentsCreateChargeDto } from './dto/payments-create-charge.dto';
 
 @Injectable()
 export class PaymentsService {
-  private readonly stripe: StripeType;
+  private readonly stripe;
 
   constructor(
     private readonly configService: ConfigService,
