@@ -15,6 +15,8 @@ COPY nest-cli.json nest-cli.json
 
 RUN pnpm install -r 
 
+RUN pnpm run build reservations
+
 FROM node:alpine as production
 
 ARG NODE_ENV=production
